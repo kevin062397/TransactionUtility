@@ -10,6 +10,8 @@
 
 - Click on **Calculate** on the top and the result will be displayed in the text area in the center.
 
+- Click on **Save** on the top and the result will be saved to a file.
+
 ## Input Data Schema
 
 The data should be stored in a CSV file.

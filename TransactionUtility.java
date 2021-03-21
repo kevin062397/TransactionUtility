@@ -1,18 +1,23 @@
 import java.io.*;
+import java.nio.charset.Charset;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.filechooser.*;
+
+/**
+ * @author Haoyuan Kevin Xia
+ * @since 09/2015
+ */
 
 public class TransactionUtility extends JPanel implements ActionListener {
 	public static final int IDENTIFIER_LENGTH = 3;
-	JButton openButton, calculateButton;
+	JButton openButton, calculateButton, saveButton;
 	JLabel filterLabel;
 	JTextField filterField;
 	JTextArea textArea;
 	JFileChooser fileChooser;
-	File file;
+	File inputFile;
 
 	public static void main(String[] args) {
 		// Schedule a job for the event dispatch thread:
@@ -73,6 +78,9 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		this.calculateButton = new JButton("Calculate");
 		this.calculateButton.addActionListener(this);
 
+		this.saveButton = new JButton("Save");
+		this.saveButton.addActionListener(this);
+
 		this.filterLabel = new JLabel("Filter by Name");
 
 		this.filterField = new JTextField(20);
@@ -82,6 +90,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		JPanel buttonPanel = new JPanel(); // Use FlowLayout
 		buttonPanel.add(this.openButton);
 		buttonPanel.add(this.calculateButton);
+		buttonPanel.add(this.saveButton);
 
 		JPanel optionPanel = new JPanel();
 		optionPanel.add(this.filterLabel);
@@ -99,16 +108,16 @@ public class TransactionUtility extends JPanel implements ActionListener {
 			int returnVal = this.fileChooser.showOpenDialog(TransactionUtility.this);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				this.file = this.fileChooser.getSelectedFile();
+				this.inputFile = this.fileChooser.getSelectedFile();
 				// This is where a real application would open the file
-				this.textArea.setText("File opened: " + file.getName() + ".\n");
+				this.textArea.setText("File opened: " + this.inputFile.getName() + ".\n");
 			} else {
 				this.textArea.setText("Open command cancelled by user.\n");
 			}
 			this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 		} else if (e.getSource() == this.calculateButton) {
 			// Handle calculate button action
-			if (this.file == null) {
+			if (this.inputFile == null) {
 				this.textArea.setText("Please choose a transaction file.");
 				this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 			} else {
@@ -122,10 +131,20 @@ public class TransactionUtility extends JPanel implements ActionListener {
 					this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 				}
 			}
+		} else if (e.getSource() == this.saveButton) {
+			int returnVal = this.fileChooser.showSaveDialog(TransactionUtility.this);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File outputFile = this.fileChooser.getSelectedFile();
+				try {
+					this.saveLog(outputFile);
+				} catch (Exception exception) {
+				}
+			}
 		}
 	}
 
-	public void calculate() throws FileNotFoundException {
+	public void calculate() throws IOException {
 		String filterText = this.filterField.getText();
 		Set<String> filterNameSet = new HashSet<String>();
 		if (filterText.contains(",")) {
@@ -137,7 +156,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 			filterNameSet.add(filterText);
 		}
 
-		Scanner scanner = new Scanner(this.file);
+		Scanner scanner = new Scanner(this.inputFile, Charset.forName("UTF-8"));
 		scanner.nextLine();
 
 		Map<String, Double> first = new TreeMap<String, Double>();
@@ -203,6 +222,8 @@ public class TransactionUtility extends JPanel implements ActionListener {
 				}
 			}
 		}
+		
+		scanner.close();
 
 		this.textArea.append("\n");
 
@@ -250,5 +271,11 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		}
 
 		this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
+	}
+
+	public void saveLog(File outputFile) throws FileNotFoundException {
+		PrintStream output = new PrintStream(outputFile);
+		output.print(this.textArea.getText());
+		output.close();
 	}
 }
