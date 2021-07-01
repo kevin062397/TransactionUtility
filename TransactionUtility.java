@@ -112,7 +112,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 				// This is where a real application would open the file
 				this.textArea.setText("File opened: " + this.inputFile.getName() + ".\n");
 			} else {
-				this.textArea.setText("Open command cancelled by user.\n");
+				this.textArea.setText("Open command canceled by user.\n");
 			}
 			this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 		} else if (e.getSource() == this.calculateButton) {
@@ -222,7 +222,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 				}
 			}
 		}
-		
+
 		scanner.close();
 
 		this.textArea.append("\n");
