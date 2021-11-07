@@ -19,27 +19,28 @@ The data should be stored in a CSV file.
 The column definitions are as follows:
 
 1. `Date`: the date of the transaction
-2. `Seller`: the seller of the item
-3. `Item`: the name of the item
-4. `Unit Price (Local)`: the unit price of the item in the local currency
-5. `Quantity`: the quantity of the item
-6. `Tax Rate`: the tax rate in decimal
-7. `Local Currency`: the code of the local currency in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
-8. `Settlement Currency`: the code of the settlement currency in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
-9. `Exchange Rate`: the ratio between the local currency and the settlement Currency
-10. `Total (Local)`: the total amount in the local currency after tax and fees
-11. `Total (Settlement)`: the total amount in the settlement currency after tax and fees
-12. `Payer`: the person who actually paid
-13. `Payee`: the person who is supposed to pay
-14. `Multiplier`: the adjustment value multiplied to the total amount, usually for fees or discounts
-15. `Adjustment`: the adjustment value added to the total amount, usually for fees or discounts
-16. `Network`: the payment network of the payment method (optional metadata)
-17. `Category`: the category of the transaction (optional metadata)
-18. `Tag`: the tag of the transaction (optional metadata)
-19. `Address`: the street address of the seller (optional metadata)
-20. `City`: the city of the seller (optional metadata)
-21. `State`: the administrative division of the seller (optional metadata)
-22. `Country`: the country of the seller (optional metadata)
+1. `Time Zone`: the seller of the item
+1. `Seller`: the seller of the item
+1. `Item`: the name of the item
+1. `Unit Price (Local)`: the unit price of the item in the local currency
+1. `Quantity`: the quantity of the item
+1. `Tax Rate`: the tax rate in decimal
+1. `Local Currency`: the code of the local currency in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
+1. `Settlement Currency`: the code of the settlement currency in [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
+1. `Exchange Rate`: the ratio between the local currency and the settlement Currency
+1. `Total (Local)`: the total amount in the local currency after tax and fees
+1. `Total (Settlement)`: the total amount in the settlement currency after tax and fees
+1. `Payer`: the person who actually paid
+1. `Payee`: the person who is supposed to pay
+1. `Multiplier`: the adjustment value multiplied to the total amount, usually for fees or discounts
+1. `Adjustment`: the adjustment value added to the total amount, usually for fees or discounts
+1. `Network`: the payment network of the payment method (optional metadata)
+1. `Category`: the category of the transaction (optional metadata)
+1. `Tag`: the tag of the transaction (optional metadata)
+1. `Address`: the street address of the seller (optional metadata)
+1. `City`: the city of the seller (optional metadata)
+1. `State`: the administrative division of the seller (optional metadata)
+1. `Country`: the country of the seller (optional metadata)
 
 The mathematical relations exist on the data:
 
@@ -51,9 +52,11 @@ Some constraints apply to the data:
 
 - The column names are arbitraty but the order should be exact.
 
-- Columns 14 and after are ignored.
+- Columns starting from `Multiplier` are ignored.
 
-- There should be no commas (`,`) in all fields, including the thousands separators in numbers.
+- There should be no thousands separators, including commas (`50,000`) and spaces (`50 000`), in all numbers.
+
+- There decimal markers in all numbers should be should be dots (`50.00`) instead of commas (`50,00`).
 
 - All currency values should have one-character currency symbol followed by the number.
 

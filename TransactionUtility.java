@@ -11,7 +11,19 @@ import javax.swing.*;
  */
 
 public class TransactionUtility extends JPanel implements ActionListener {
+	public static final int INDEX_DATE = 0;
+	public static final int INDEX_TIME_ZONE = 1;
+	public static final int INDEX_SELLER = 2;
+	public static final int INDEX_ITEM = 3;
+	public static final int INDEX_CURRENCY_LOCAL = 7;
+	public static final int INDEX_CURRENCY_SETTLEMENT = 8;
+	public static final int INDEX_TOTAL_LOCAL = 10;
+	public static final int INDEX_TOTAL_SETTLEMENT = 11;
+	public static final int INDEX_PAYER = 12;
+	public static final int INDEX_PAYEE = 13;
+
 	public static final int IDENTIFIER_LENGTH = 3;
+
 	JButton openButton, calculateButton, saveButton;
 	JLabel filterLabel;
 	JTextField filterField;
@@ -144,6 +156,19 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		}
 	}
 
+	private String[] tokenize(String line) {
+		// Commas surrounded by double quotation marks are not delimiters
+		String[] tokens = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			if (token.startsWith("\"") && token.endsWith("\"")) {
+				token = token.substring(1, token.length() - 1);
+				tokens[i] = token;
+			}
+		}
+		return tokens;
+	}
+
 	public void calculate() throws IOException {
 		String filterText = this.filterField.getText();
 		Set<String> filterNameSet = new HashSet<String>();
@@ -160,25 +185,32 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		scanner.nextLine();
 
 		Map<String, Double> first = new TreeMap<String, Double>();
-		String date = "";
 
 		int lineCount = 0;
 
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			lineCount++;
-			System.out.printf("%5d: %s\n", lineCount, line);
+			System.out.printf("%5d: Original:  %s\n", lineCount, line);
+			String[] tokens = this.tokenize(line);
+			System.out.printf("%5d: Tokenized: %s\n", lineCount, Arrays.toString(tokens));
+			String date = tokens[INDEX_DATE].trim();
+			String timeZone = tokens[INDEX_TIME_ZONE].trim();
+
+			String dateWithTimeZone = date;
+			if (!timeZone.isEmpty()) {
+				dateWithTimeZone += " (" + timeZone + ")";
+			}
+
+			String seller = tokens[INDEX_SELLER].trim();
+			String item = tokens[INDEX_ITEM].trim();
+			String currencyLocal = tokens[INDEX_CURRENCY_LOCAL].trim();
+			String currencySettlement = tokens[INDEX_CURRENCY_SETTLEMENT].trim();
 			// Excel includes a leading space and a trailing space around the currency
-			String[] tokens = line.split(",");
-			date = tokens[0].trim();
-			String seller = tokens[1].trim();
-			String item = tokens[2].trim();
-			String currencyLocal = tokens[6].trim();
-			String currencySettlement = tokens[7].trim();
-			Double totalLocal = Double.parseDouble(tokens[9].trim().substring(1));
-			Double totalSettlement = Double.parseDouble(tokens[10].trim().substring(1));
-			String payer = tokens[11].trim();
-			String payee = tokens[12].trim();
+			Double totalLocal = Double.parseDouble(tokens[INDEX_TOTAL_LOCAL].trim().substring(1));
+			Double totalSettlement = Double.parseDouble(tokens[INDEX_TOTAL_SETTLEMENT].trim().substring(1));
+			String payer = tokens[INDEX_PAYER].trim();
+			String payee = tokens[INDEX_PAYEE].trim();
 
 			payer += "   ";
 			payee += "   ";
@@ -214,11 +246,11 @@ public class TransactionUtility extends JPanel implements ActionListener {
 				if (item.equals("PAYMENT")) {
 					this.textArea.append(String.format("%5d: %3s paid %.2f %s (%.2f %s) to %3s at %s via %s\n",
 							lineCount, payee, totalSettlement, currencySettlement, totalLocal, currencyLocal, payer,
-							date, seller));
+							dateWithTimeZone, seller));
 				} else {
 					this.textArea.append(String.format("%5d: %3s paid %.2f %s (%.2f %s) for %3s at %s at %s\n",
 							lineCount, payee, totalSettlement, currencySettlement, totalLocal, currencyLocal, payer,
-							date, seller));
+							dateWithTimeZone, seller));
 				}
 			}
 		}
