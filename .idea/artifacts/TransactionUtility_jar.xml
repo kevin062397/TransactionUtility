@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TransactionUtility:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TransactionUtility_jar</output-path>
+    <root id="archive" name="TransactionUtility.jar">
+      <element id="module-output" name="TransactionUtility" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.22/lombok-1.18.22.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

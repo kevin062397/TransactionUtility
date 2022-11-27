@@ -1,28 +1,21 @@
-import java.io.*;
-import java.nio.charset.Charset;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 
 /**
+ * This class is the entry point and the main user interface for <tt>TransactionUtility</tt>.
+ *
  * @author Haoyuan Kevin Xia
- * @since 09/2015
+ * @since 12/18/2021
  */
 
 public class TransactionUtility extends JPanel implements ActionListener {
-	public static final int INDEX_DATE = 0;
-	public static final int INDEX_TIME_ZONE = 1;
-	public static final int INDEX_SELLER = 2;
-	public static final int INDEX_ITEM = 3;
-	public static final int INDEX_CURRENCY_LOCAL = 7;
-	public static final int INDEX_CURRENCY_SETTLEMENT = 8;
-	public static final int INDEX_TOTAL_LOCAL = 10;
-	public static final int INDEX_TOTAL_SETTLEMENT = 11;
-	public static final int INDEX_PAYER = 12;
-	public static final int INDEX_PAYEE = 13;
-
-	public static final int IDENTIFIER_LENGTH = 3;
+	public static final boolean PRINT_LOG = false;
 
 	JButton openButton, calculateButton, saveButton;
 	JLabel filterLabel;
@@ -44,8 +37,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 	}
 
 	/**
-	 * Create the GUI and show it. For thread safety, this method should be invoked
-	 * from the event dispatch thread.
+	 * Create the GUI and show it. For thread safety, this method should be invoked from the event dispatch thread.
 	 */
 	private static void createAndShowGUI() {
 		// Create and set up the window
@@ -64,7 +56,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		frame.setLocationRelativeTo(null);
 
 		// Display the window
-		frame.pack();
+		// frame.pack(); // frame.pack() will override the frame size and location
 		frame.setVisible(true);
 	}
 
@@ -122,7 +114,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				this.inputFile = this.fileChooser.getSelectedFile();
 				// This is where a real application would open the file
-				this.textArea.setText("File opened: " + this.inputFile.getName() + ".\n");
+				this.textArea.setText("File opened: " + this.inputFile.getName() + "\n");
 			} else {
 				this.textArea.setText("Open command canceled by user.\n");
 			}
@@ -151,157 +143,46 @@ public class TransactionUtility extends JPanel implements ActionListener {
 				try {
 					this.saveLog(outputFile);
 				} catch (Exception exception) {
+					this.textArea.append("Error\n\n");
+					this.textArea.append(exception.getLocalizedMessage());
+					exception.printStackTrace();
+					this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 				}
 			}
 		}
-	}
-
-	private String[] tokenize(String line) {
-		// Commas surrounded by double quotation marks are not delimiters
-		String[] tokens = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-		for (int i = 0; i < tokens.length; i++) {
-			String token = tokens[i];
-			if (token.startsWith("\"") && token.endsWith("\"")) {
-				token = token.substring(1, token.length() - 1);
-				tokens[i] = token;
-			}
-		}
-		return tokens;
 	}
 
 	public void calculate() throws IOException {
-		String filterText = this.filterField.getText();
-		Set<String> filterNameSet = new HashSet<String>();
-		if (filterText.contains(",")) {
-			String[] filterNameArray = filterText.split(",");
-			for (String token : filterNameArray) {
-				filterNameSet.add(token.trim());
-			}
-		} else if (!filterText.isEmpty()) {
-			filterNameSet.add(filterText);
-		}
-
-		Scanner scanner = new Scanner(this.inputFile, Charset.forName("UTF-8"));
-		scanner.nextLine();
-
-		Map<String, Double> first = new TreeMap<String, Double>();
-
-		int lineCount = 0;
-
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			lineCount++;
-			System.out.printf("%5d: Original:  %s\n", lineCount, line);
-			String[] tokens = this.tokenize(line);
-			System.out.printf("%5d: Tokenized: %s\n", lineCount, Arrays.toString(tokens));
-			String date = tokens[INDEX_DATE].trim();
-			String timeZone = tokens[INDEX_TIME_ZONE].trim();
-
-			String dateWithTimeZone = date;
-			if (!timeZone.isEmpty()) {
-				dateWithTimeZone += " (" + timeZone + ")";
-			}
-
-			String seller = tokens[INDEX_SELLER].trim();
-			String item = tokens[INDEX_ITEM].trim();
-			String currencyLocal = tokens[INDEX_CURRENCY_LOCAL].trim();
-			String currencySettlement = tokens[INDEX_CURRENCY_SETTLEMENT].trim();
-			// Excel includes a leading space and a trailing space around the currency
-			Double totalLocal = Double.parseDouble(tokens[INDEX_TOTAL_LOCAL].trim().substring(1));
-			Double totalSettlement = Double.parseDouble(tokens[INDEX_TOTAL_SETTLEMENT].trim().substring(1));
-			String payer = tokens[INDEX_PAYER].trim();
-			String payee = tokens[INDEX_PAYEE].trim();
-
-			payer += "   ";
-			payee += "   ";
-			payer = payer.substring(0, IDENTIFIER_LENGTH);
-			payee = payee.substring(0, IDENTIFIER_LENGTH);
-
-			// Special cases
-			if (payer.equals("XDD")) {
-				payer = "XHY";
-			}
-
-			if (payer.equals(payee)) {
-				this.textArea.append(String.format("%5d: Skipped (%3s paid for %3s)\n", lineCount, payee, payer));
-				continue;
-			}
-
-			if (item.equals("PAYMENT")) {
-				String temp = payer;
-				payer = payee;
-				payee = temp;
-			}
-
-			String key = payer + payee;
-
-			if (!first.keySet().contains(key)) {
-				first.put(key, Double.valueOf(0));
-			}
-
-			Double previousValue = first.get(key);
-			first.put(key, previousValue + totalSettlement);
-
-			if (filterNameSet.isEmpty() || filterNameSet.contains(payer) || filterNameSet.contains(payee)) {
-				if (item.equals("PAYMENT")) {
-					this.textArea.append(String.format("%5d: %3s paid %.2f %s (%.2f %s) to %3s at %s via %s\n",
-							lineCount, payee, totalSettlement, currencySettlement, totalLocal, currencyLocal, payer,
-							dateWithTimeZone, seller));
-				} else {
-					this.textArea.append(String.format("%5d: %3s paid %.2f %s (%.2f %s) for %3s at %s at %s\n",
-							lineCount, payee, totalSettlement, currencySettlement, totalLocal, currencyLocal, payer,
-							dateWithTimeZone, seller));
-				}
-			}
-		}
-
-		scanner.close();
-
-		this.textArea.append("\n");
-
+		// Parse file
 		long startTime = System.nanoTime();
 
-		Map<String, Double> second = new TreeMap<String, Double>();
+		TransactionFileParser parser = new TransactionFileParser(this.inputFile);
+		TransactionPool pool = parser.parse(PRINT_LOG);
 
-		for (String key : first.keySet()) {
-			String reversedKey = "" + key.substring(IDENTIFIER_LENGTH, IDENTIFIER_LENGTH * 2)
-					+ key.substring(0, IDENTIFIER_LENGTH);
-			if (second.containsKey(reversedKey)) {
-				second.put(reversedKey, second.get(reversedKey) - first.get(key));
-			} else if (second.containsKey(key)) {
-				second.put(key, second.get(reversedKey) + first.get(key));
-			} else {
-				second.put(key, first.get(key));
-			}
-		}
-
-		Map<String, Double> third = new TreeMap<String, Double>();
-
-		for (String key : second.keySet()) {
-			double amount = second.get(key);
-			if (amount < 0) {
-				String reversedKey = "" + key.substring(IDENTIFIER_LENGTH, IDENTIFIER_LENGTH * 2)
-						+ key.substring(0, IDENTIFIER_LENGTH);
-				third.put(reversedKey, -amount);
-			} else {
-				third.put(key, amount);
-			}
+		int i = 0;
+		for (TransactionRecord record : pool.getRecords()) {
+			i++;
+			this.textArea.append(String.format("%5d: %s\n", i, record.toString()));
 		}
 
 		long endTime = System.nanoTime();
-		this.textArea.append(String.format("Calculation finished in %.6f ms\n", (endTime - startTime) / 1000000.0));
+		this.textArea.append("\n");
+		this.textArea.append(String.format("Parsing finished in %.6f ms\n", (endTime - startTime) / 1000000.0));
+
+		this.textArea.append("\n");
 		this.textArea.append("\n");
 
-		for (String key : third.keySet()) {
-			String party1 = key.substring(0, IDENTIFIER_LENGTH);
-			String party2 = key.substring(IDENTIFIER_LENGTH, IDENTIFIER_LENGTH * 2);
-			double amount = third.get(key);
-			if ((filterNameSet.isEmpty() || filterNameSet.contains(party1) || filterNameSet.contains(party2))
-					&& third.get(key) >= 0.01) {
-				this.textArea.append(String.format("%s needs to pay %s %.2f USD\n", party1, party2, amount));
-			}
-		}
+		// Generate report
+		startTime = System.nanoTime();
 
+		TransactionReport report = pool.getReport(0.1, null, null);
+		this.textArea.append(report.toString());
+
+		endTime = System.nanoTime();
+		this.textArea.append("\n");
+		this.textArea.append(String.format("Calculation finished in %.6f ms\n", (endTime - startTime) / 1000000.0));
+
+		// Finish
 		this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 	}
 
