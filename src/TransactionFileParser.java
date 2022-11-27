@@ -129,8 +129,11 @@ public class TransactionFileParser {
 	private double extractNumber(String text) {
 		Pattern numberPattern = Pattern.compile("(\\d+(\\.\\d+)?)");
 		Matcher numberMatcher = numberPattern.matcher(text);
-		numberMatcher.find();
-		String numberString = numberMatcher.group();
-		return Double.parseDouble(numberString);
+		if (numberMatcher.find()) {
+			String numberString = numberMatcher.group();
+			return Double.parseDouble(numberString);
+		} else {
+			return 0.0;
+		}
 	}
 }

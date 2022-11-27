@@ -16,7 +16,7 @@ public class TransactionPool {
 	private final List<TransactionRecord> records;
 
 	public TransactionPool() {
-		this.records = new ArrayList<TransactionRecord>();
+		this.records = new ArrayList<>();
 	}
 
 	public void addRecord(@NonNull TransactionRecord record) {
@@ -28,7 +28,7 @@ public class TransactionPool {
 	}
 
 	public List<TransactionRecord> getRecords() {
-		return new ArrayList<TransactionRecord>(this.records);
+		return new ArrayList<>(this.records);
 	}
 
 	public TransactionRecord getRecordWithIndex(int index) {

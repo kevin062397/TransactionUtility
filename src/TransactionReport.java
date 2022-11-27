@@ -10,8 +10,8 @@ import java.util.*;
  */
 
 public class TransactionReport {
-	private Set<TransactionReportItem> reportItems;
-	private double reportThreshold;
+	private final Set<TransactionReportItem> reportItems;
+	private final double reportThreshold;
 	private Set<String> filterNames;
 	private Map<String, String> aliases;
 
@@ -20,10 +20,10 @@ public class TransactionReport {
 		 * The order cannot be maintained with a TreeSet because the order of the tree is determined when the object is
 		 * inserted. If the names are reversed afterwards, the order cannot be guaranteed.
 		 */
-		this.reportItems = new HashSet<TransactionReportItem>();
+		this.reportItems = new HashSet<>();
 		this.reportThreshold = reportThreshold;
-		this.filterNames = new HashSet<String>();
-		this.aliases = new HashMap<String, String>();
+		this.filterNames = new HashSet<>();
+		this.aliases = new HashMap<>();
 	}
 
 	public void addRecord(@NonNull TransactionRecord record) {
@@ -33,10 +33,10 @@ public class TransactionReport {
 			newReportItem.amount = -newReportItem.amount;
 		}
 
-		if (this.aliases.keySet().contains(newReportItem.payer)) {
+		if (this.aliases.containsKey(newReportItem.payer)) {
 			newReportItem.payer = this.aliases.get(newReportItem.payer);
 		}
-		if (this.aliases.keySet().contains(newReportItem.payee)) {
+		if (this.aliases.containsKey(newReportItem.payee)) {
 			newReportItem.payee = this.aliases.get(newReportItem.payee);
 		}
 
@@ -62,24 +62,24 @@ public class TransactionReport {
 
 	@Override
 	public String toString() {
-		String result = "";
+		StringBuilder result = new StringBuilder();
 
-		Set<TransactionReportItem> reportItemsSorted = new TreeSet<TransactionReportItem>(this.reportItems);
+		Set<TransactionReportItem> reportItemsSorted = new TreeSet<>(this.reportItems);
 		for (TransactionReportItem reportItem : reportItemsSorted) {
 			if (reportItem.amount > this.reportThreshold && (this.filterNames.isEmpty()
 					|| this.filterNames.contains(reportItem.payer) || this.filterNames.contains(reportItem.payee))) {
-				result += reportItem.toString() + "\n";
+				result.append(reportItem).append("\n");
 			}
 		}
 
-		return result;
+		return result.toString();
 	}
 
-	private class TransactionReportItem implements Comparable<TransactionReportItem> {
+	private static class TransactionReportItem implements Comparable<TransactionReportItem> {
 		public String payer;
 		public String payee;
 		public double amount;
-		public String currency;
+		public final String currency;
 
 		public TransactionReportItem(String payer, String payee, double amount, String currency) {
 			this.payer = payer;

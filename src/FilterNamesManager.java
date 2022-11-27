@@ -27,7 +27,7 @@ public class FilterNamesManager {
 	public void setString(String filterNamesString) {
 		String[] filterNamesArray = filterNamesString.split("[,，]");
 		Set<String> filterNames = Arrays.stream(filterNamesArray)
-				.map(filterName -> filterName.trim())
+				.map(String::trim)
 				.filter(filterName -> !filterName.isEmpty())
 				.collect(Collectors.toSet());
 		this.filterNames = new HashSet<>(filterNames);
