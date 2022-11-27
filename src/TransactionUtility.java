@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Set;
 
 /**
  * This class is the entry point and the main user interface for <tt>TransactionUtility</tt>.
@@ -17,12 +18,15 @@ import java.io.PrintStream;
 public class TransactionUtility extends JPanel implements ActionListener {
 	public static final boolean PRINT_LOG = false;
 
-	JButton openButton, calculateButton, saveButton;
-	JLabel filterLabel;
-	JTextField filterField;
-	JTextArea textArea;
-	JFileChooser fileChooser;
-	File inputFile;
+	private JButton openButton, calculateButton, saveButton;
+	private JLabel filterLabel;
+	private JTextField filterField;
+	private JTextArea textArea;
+
+	private JFileChooser fileChooser;
+	private File inputFile;
+
+	private FilterNamesManager filterNamesManager = FilterNamesManager.sharedInstance();
 
 	public static void main(String[] args) {
 		// Schedule a job for the event dispatch thread:
@@ -175,7 +179,10 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		// Generate report
 		startTime = System.nanoTime();
 
-		TransactionReport report = pool.getReport(0.1, null, null);
+		this.filterNamesManager.setString(this.filterField.getText());
+		Set<String> filterNames = this.filterNamesManager.getAll();
+
+		TransactionReport report = pool.getReport(0.1, null, filterNames);
 		this.textArea.append(report.toString());
 
 		endTime = System.nanoTime();
