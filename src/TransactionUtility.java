@@ -18,15 +18,16 @@ import java.util.Set;
 public class TransactionUtility extends JPanel implements ActionListener {
 	public static final boolean PRINT_LOG = false;
 
-	private JButton openButton, calculateButton, saveButton;
-	private JLabel filterLabel;
-	private JTextField filterField;
-	private JTextArea textArea;
+	private final JButton openButton;
+	private final JButton calculateButton;
+	private final JButton saveButton;
+	private final JTextArea textArea;
+	private final JTextField filterNamesTextField;
 
-	private JFileChooser fileChooser;
+	private final JFileChooser fileChooser;
 	private File inputFile;
 
-	private FilterNamesManager filterNamesManager = FilterNamesManager.sharedInstance();
+	private final FilterNamesManager filterNamesManager;
 
 	public static void main(String[] args) {
 		// Schedule a job for the event dispatch thread:
@@ -60,54 +61,68 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		frame.setLocationRelativeTo(null);
 
 		// Display the window
-		// frame.pack(); // frame.pack() will override the frame size and location
+		// frame.pack(); // Will override the frame size and location
 		frame.setVisible(true);
 	}
 
 	public TransactionUtility() {
 		super(new BorderLayout());
 
-		// Create the log first because the action listeners need to refer to it
-		this.textArea = new JTextArea(20, 60);
+		// Top panel
+		JPanel buttonsPanel = new JPanel();
+		this.add(buttonsPanel, BorderLayout.NORTH);
+
+		// Top panel - open button
+		this.openButton = new JButton("Open");
+		this.openButton.addActionListener(this);
+		buttonsPanel.add(this.openButton);
+
+		// Top panel - calculate button
+		this.calculateButton = new JButton("Calculate");
+		this.calculateButton.addActionListener(this);
+		buttonsPanel.add(this.calculateButton);
+
+		// Top panel - save button
+		this.saveButton = new JButton("Save");
+		this.saveButton.addActionListener(this);
+		buttonsPanel.add(this.saveButton);
+
+		// Center panel
+		JScrollPane scrollPane = new JScrollPane();
+		this.add(scrollPane, BorderLayout.CENTER);
+
+		// Center panel - text area
+		this.textArea = new JTextArea();
 		this.textArea.setMargin(new Insets(5, 5, 5, 5));
 		this.textArea.setEditable(false);
 		this.textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-		JScrollPane logScrollPane = new JScrollPane(this.textArea);
+		scrollPane.setViewportView(this.textArea);
 
 		this.textArea.setText("Please choose a transaction file.");
 		this.textArea.setCaretPosition(this.textArea.getDocument().getLength());
 
+		// Bottom panel
+		JPanel optionsPanel = new JPanel();
+		this.add(optionsPanel, BorderLayout.SOUTH);
+		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+
+		// Bottom panel - filter name
+		JPanel filterNamesPanel = new JPanel();
+		optionsPanel.add(filterNamesPanel);
+
+		JLabel filterNamesLabel = new JLabel("Filter by Name");
+		filterNamesPanel.add(filterNamesLabel);
+
+		this.filterNamesTextField = new JTextField();
+		this.filterNamesTextField.setEditable(false);
+		this.filterNamesTextField.setColumns(20);
+		filterNamesPanel.add(this.filterNamesTextField);
+
+		// Other initialization steps
 		this.fileChooser = new JFileChooser();
 		this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-		this.openButton = new JButton("Open");
-		this.openButton.addActionListener(this);
-
-		this.calculateButton = new JButton("Calculate");
-		this.calculateButton.addActionListener(this);
-
-		this.saveButton = new JButton("Save");
-		this.saveButton.addActionListener(this);
-
-		this.filterLabel = new JLabel("Filter by Name");
-
-		this.filterField = new JTextField(20);
-		this.filterField.setText("");
-
-		// For layout purposes, put the buttons in a separate panel
-		JPanel buttonPanel = new JPanel(); // Use FlowLayout
-		buttonPanel.add(this.openButton);
-		buttonPanel.add(this.calculateButton);
-		buttonPanel.add(this.saveButton);
-
-		JPanel optionPanel = new JPanel();
-		optionPanel.add(this.filterLabel);
-		optionPanel.add(this.filterField);
-
-		// Add the buttons and the log to this panel
-		add(buttonPanel, BorderLayout.PAGE_START);
-		add(optionPanel, BorderLayout.PAGE_END);
-		add(logScrollPane, BorderLayout.CENTER);
+		this.filterNamesManager = FilterNamesManager.sharedInstance();
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -179,7 +194,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		// Generate report
 		startTime = System.nanoTime();
 
-		this.filterNamesManager.setString(this.filterField.getText());
+		this.filterNamesManager.setString(this.filterNamesTextField.getText());
 		Set<String> filterNames = this.filterNamesManager.getAll();
 
 		TransactionReport report = pool.getReport(0.1, null, filterNames);
