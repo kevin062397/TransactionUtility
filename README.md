@@ -3,12 +3,14 @@
 ## Usage
 
 - Click on **Open** on the top and choose the transaction file.
-
-- Enter the names in the **Filter** text field at the bottom if necessary. A comma (`,`) is used to separate multiple
-  names. Only the records involving the names will be calculated and displayed.
-
+- Enter the names and their aliases in the **Aliases** text field at the bottom if necessary. All aliases must be
+  unique. Multiple aliases can represent the same name. A colon (`:`) is used to separate a pair of alias and name. A
+  comma (`,`) is used to separate multiple pairs. Leading and trailing whitespace characters are omitted. An input
+  example is `Alias1: Name1, Alias2: Name2`. During processing, aliases with be treated as the names they represent.
+- Enter the names in the **Filter names** text field at the bottom if necessary. A comma (`,`) is used to separate
+  multiple names. Leading and trailing whitespace characters are omitted. An input example is `Name1, Name2`. Only the
+  records involving the names will be displayed.
 - Click on **Calculate** on the top and the result will be displayed in the text area in the center.
-
 - Click on **Save** on the top and the result will be saved to a file.
 
 ## Input Data Schema
@@ -52,13 +54,10 @@ The order of the columns is arbitrary.
 The mathematical relations exist on the data:
 
 - `Total (Local)` = `Unit Price (Local)` × `Quantity` × (1 + `Tax Rate`) × `Multiplier` + `Adjustment`
-
 - `Total (Settlement)` = `Total (Local)` × `Exchange Rate`
 
 Some constraints apply to the data:
 
 - The columns marked as \[required\] should have the exact names. Other columns can have any arbitrary names.
-
 - There should be no thousands separators, including commas (`50,000`) and spaces (`50 000`), in all numbers.
-
-- There decimal markers in all numbers should be should be dots (`50.00`) instead of commas (`50,00`).
+- There decimal markers in all numbers should be dots (`50.00`) instead of commas (`50,00`).

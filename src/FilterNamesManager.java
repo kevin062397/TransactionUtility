@@ -30,7 +30,7 @@ public class FilterNamesManager {
 				.map(filterName -> filterName.trim())
 				.filter(filterName -> !filterName.isEmpty())
 				.collect(Collectors.toSet());
-		this.filterNames = new TreeSet<>(filterNames);
+		this.filterNames = new HashSet<>(filterNames);
 	}
 
 	public void add(String filterName) {

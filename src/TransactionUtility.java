@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,11 +23,13 @@ public class TransactionUtility extends JPanel implements ActionListener {
 	private final JButton calculateButton;
 	private final JButton saveButton;
 	private final JTextArea textArea;
+	private final JTextField aliasesTextField;
 	private final JTextField filterNamesTextField;
 
 	private final JFileChooser fileChooser;
 	private File inputFile;
 
+	private final AliasesManager aliasesManager;
 	private final FilterNamesManager filterNamesManager;
 
 	public static void main(String[] args) {
@@ -106,15 +109,27 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		this.add(optionsPanel, BorderLayout.SOUTH);
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
 
+		// Bottom panel - aliases
+		JPanel aliasesPanel = new JPanel();
+		optionsPanel.add(aliasesPanel);
+
+		JLabel aliasesLabel = new JLabel("Aliases:");
+		aliasesPanel.add(aliasesLabel);
+
+		this.aliasesTextField = new JTextField();
+		this.aliasesTextField.setEditable(true);
+		this.aliasesTextField.setColumns(20);
+		aliasesPanel.add(this.aliasesTextField);
+
 		// Bottom panel - filter name
 		JPanel filterNamesPanel = new JPanel();
 		optionsPanel.add(filterNamesPanel);
 
-		JLabel filterNamesLabel = new JLabel("Filter by Name");
+		JLabel filterNamesLabel = new JLabel("Filter names:");
 		filterNamesPanel.add(filterNamesLabel);
 
 		this.filterNamesTextField = new JTextField();
-		this.filterNamesTextField.setEditable(false);
+		this.filterNamesTextField.setEditable(true);
 		this.filterNamesTextField.setColumns(20);
 		filterNamesPanel.add(this.filterNamesTextField);
 
@@ -122,6 +137,7 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		this.fileChooser = new JFileChooser();
 		this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
+		this.aliasesManager = AliasesManager.sharedInstance();
 		this.filterNamesManager = FilterNamesManager.sharedInstance();
 	}
 
@@ -194,10 +210,13 @@ public class TransactionUtility extends JPanel implements ActionListener {
 		// Generate report
 		startTime = System.nanoTime();
 
+		this.aliasesManager.setString(this.aliasesTextField.getText());
+		Map<String, String> aliases = this.aliasesManager.getAll();
+
 		this.filterNamesManager.setString(this.filterNamesTextField.getText());
 		Set<String> filterNames = this.filterNamesManager.getAll();
 
-		TransactionReport report = pool.getReport(0.1, null, filterNames);
+		TransactionReport report = pool.getReport(0.1, aliases, filterNames);
 		this.textArea.append(report.toString());
 
 		endTime = System.nanoTime();

@@ -51,16 +51,17 @@ public class TransactionPool {
 	public TransactionReport getReport(double threshold, Map<String, String> aliases, Set<String> filterNames) {
 		TransactionReport report = new TransactionReport(threshold);
 
-		for (TransactionRecord record : this.records) {
-			report.addRecord(record);
-		}
-
+		// Aliases should be set before adding records
 		if (aliases != null) {
 			report.setAliases(aliases);
 		}
 
 		if (filterNames != null) {
 			report.setFilterNames(filterNames);
+		}
+
+		for (TransactionRecord record : this.records) {
+			report.addRecord(record);
 		}
 
 		return report;
