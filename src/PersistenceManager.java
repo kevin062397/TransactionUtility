@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +40,7 @@ public class PersistenceManager {
 		return sharedInstance;
 	}
 
-	public void loadFromFile() {
+	private void loadFromFile() {
 		JSONParser parser = new JSONParser();
 		try {
 			FileReader fileReader = new FileReader(this.persistenceFile, StandardCharsets.UTF_8);
@@ -50,7 +53,7 @@ public class PersistenceManager {
 		}
 	}
 
-	public void saveToFile() {
+	private void saveToFile() {
 		try {
 			FileWriter fileWriter = new FileWriter(this.persistenceFile, StandardCharsets.UTF_8);
 			fileWriter.write(this.rootObject.toJSONString());
@@ -58,6 +61,19 @@ public class PersistenceManager {
 			fileWriter.close();
 		} catch (Exception exception) {
 			exception.printStackTrace();
+		}
+
+		this.hideFile();
+	}
+
+	private void hideFile() {
+		if (!this.persistenceFile.isHidden()) {
+			Path path = this.persistenceFile.toPath();
+			try {
+				Files.setAttribute(path, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}
 	}
 
