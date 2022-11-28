@@ -6,6 +6,7 @@
  */
 
 public class Constants {
+	// Transaction file schema
 	public static final String TITLE_DATE = "Date";
 	public static final String TITLE_TIME_ZONE = "Time Zone";
 	public static final String TITLE_SELLER = "Seller";
@@ -16,4 +17,10 @@ public class Constants {
 	public static final String TITLE_TOTAL_SETTLEMENT = "Total (Settlement)";
 	public static final String TITLE_PAYER = "Payer";
 	public static final String TITLE_PAYEE = "Payee";
+
+	// Persistence
+	public static final String USER_HOME_DIRECTORY_KEY = "user.home";
+	public static final String PERSISTENCE_FILE_NAME = ".transaction_utility";
+	public static final String PERSISTENCE_KEY_ALIASES = "aliases";
+	public static final String PERSISTENCE_KEY_FILTER_NAMES = "filterNames";
 }

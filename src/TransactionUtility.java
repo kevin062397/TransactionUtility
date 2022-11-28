@@ -137,6 +137,9 @@ public class TransactionUtility extends JPanel implements ActionListener {
 
 		this.aliasesManager = AliasesManager.sharedInstance();
 		this.filterNamesManager = FilterNamesManager.sharedInstance();
+
+		this.aliasesTextField.setText(this.aliasesManager.toString());
+		this.filterNamesTextField.setText(this.filterNamesManager.toString());
 	}
 
 	public void actionPerformed(ActionEvent e) {
