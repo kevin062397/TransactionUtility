@@ -27,7 +27,7 @@ public class PersistenceManager {
 	private JSONObject rootObject;
 
 	private PersistenceManager() {
-		String userHomeDirectoryPath = System.getProperty(Constants.USER_HOME_DIRECTORY_KEY);
+		String userHomeDirectoryPath = System.getProperty(Constants.SYSTEM_PROPERTY_KEY_USER_HOME_DIRECTORY);
 		this.persistenceFile = new File(userHomeDirectoryPath, Constants.PERSISTENCE_FILE_NAME);
 
 		this.loadFromFile();
@@ -54,6 +54,8 @@ public class PersistenceManager {
 	}
 
 	private void saveToFile() {
+		this.setFileHidden(false);
+
 		try {
 			FileWriter fileWriter = new FileWriter(this.persistenceFile, StandardCharsets.UTF_8);
 			fileWriter.write(this.rootObject.toJSONString());
@@ -63,14 +65,14 @@ public class PersistenceManager {
 			exception.printStackTrace();
 		}
 
-		this.hideFile();
+		this.setFileHidden(true);
 	}
 
-	private void hideFile() {
-		if (!this.persistenceFile.isHidden()) {
+	private void setFileHidden(boolean hidden) {
+		if (System.getProperty(Constants.SYSTEM_PROPERTY_KEY_OS_NAME).toLowerCase().contains("win")) {
 			Path path = this.persistenceFile.toPath();
 			try {
-				Files.setAttribute(path, "dos:hidden", true, LinkOption.NOFOLLOW_LINKS);
+				Files.setAttribute(path, "dos:hidden", hidden, LinkOption.NOFOLLOW_LINKS);
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			}

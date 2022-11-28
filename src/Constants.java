@@ -19,7 +19,8 @@ public class Constants {
 	public static final String TITLE_PAYEE = "Payee";
 
 	// Persistence
-	public static final String USER_HOME_DIRECTORY_KEY = "user.home";
+	public static final String SYSTEM_PROPERTY_KEY_OS_NAME = "os.name";
+	public static final String SYSTEM_PROPERTY_KEY_USER_HOME_DIRECTORY = "user.home";
 	public static final String PERSISTENCE_FILE_NAME = ".transaction_utility";
 	public static final String PERSISTENCE_KEY_ALIASES = "aliases";
 	public static final String PERSISTENCE_KEY_FILTER_NAMES = "filterNames";
