@@ -9,7 +9,7 @@ import java.util.Set;
  * This class <tt>TransactionPool</tt> represents a collection of transaction records.
  *
  * @author Haoyuan Kevin Xia
- * @since 12/18/2021
+ * @since 2021-12-18
  */
 
 public class TransactionPool {

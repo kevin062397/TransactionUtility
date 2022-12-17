@@ -2,7 +2,7 @@
  * This class <tt>Constants</tt> defines all the constants used in this project.
  *
  * @author Haoyuan Kevin Xia
- * @since 11/26/2022
+ * @since 2022-11-26
  */
 
 public class Constants {

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * This class <tt>TransactionFileParser</tt> parses a well-formatted transaction file.
  *
  * @author Haoyuan Kevin Xia
- * @since 12/18/2021
+ * @since 2021-12-18
  */
 
 public class TransactionFileParser {

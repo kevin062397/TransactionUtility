@@ -13,7 +13,7 @@ import java.util.Set;
  * This class is the entry point and the main user interface for <tt>TransactionUtility</tt>.
  *
  * @author Haoyuan Kevin Xia
- * @since 12/18/2021
+ * @since 2021-12-18
  */
 
 public class TransactionUtility extends JPanel implements ActionListener {

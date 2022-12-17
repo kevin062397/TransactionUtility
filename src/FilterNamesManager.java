@@ -3,7 +3,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Haoyuan Kevin Xia
- * @since 11/26/2022
+ * @since 2022-11-26
  */
 
 public class FilterNamesManager {

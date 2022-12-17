@@ -6,7 +6,7 @@ import java.util.*;
  * This class <tt>TransactionReport</tt> generates a report for a collection of transaction records.
  *
  * @author Haoyuan Kevin Xia
- * @since 12/18/2021
+ * @since 2021-12-18
  */
 
 public class TransactionReport {
@@ -17,8 +17,8 @@ public class TransactionReport {
 
 	public TransactionReport(double reportThreshold) {
 		/*
-		 * The order cannot be maintained with a TreeSet because the order of the tree is determined when the object is
-		 * inserted. If the names are reversed afterwards, the order cannot be guaranteed.
+		 * The order cannot be maintained with a TreeSet because the order of the tree is determined when the object
+		 * is inserted. If the names are reversed afterwards, the order cannot be guaranteed.
 		 */
 		this.reportItems = new HashSet<>();
 		this.reportThreshold = reportThreshold;

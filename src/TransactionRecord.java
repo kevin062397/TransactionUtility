@@ -8,7 +8,7 @@ import java.util.Date;
  * This class <tt>TransactionRecord</tt> represents a piece of transaction record.
  *
  * @author Haoyuan Kevin Xia
- * @since 12/18/2021
+ * @since 2021-12-18
  */
 
 @Builder
